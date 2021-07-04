@@ -1,5 +1,8 @@
 [package]
 name = "libva-sys"
+description = "Rust bindings for libva and libva-utils"
+author = "Valerian G. <valerian@dusklabs.io>"
+license = "MIT"
 version = "0.1.0"
 edition = "2018"
 links = "va"
