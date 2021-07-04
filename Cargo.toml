@@ -1,0 +1,21 @@
+[package]
+name = "libva-sys"
+version = "0.1.0"
+edition = "2018"
+links = "va"
+build = "build.rs"
+
+[features]
+default = ["drm"]
+
+drm = []
+x11 = []
+wayland = []
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+cc = { version = "1.0", features = ["parallel"] }
+cfg-if = "1.0.0"
+pkg-config = "0.3"
