@@ -12,7 +12,6 @@ cfg_if! {
 
 fn main() {
     pkg_config::Config::new()
-        .atleast_version("1.05")
         .probe(LIB_NAME)
         .expect("Failed to find libva.");
 
