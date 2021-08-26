@@ -6,8 +6,6 @@ pub use va_str::*;
 
 #[cfg(feature = "drm")]
 pub mod va_display_drm;
-#[cfg(feature = "drm")]
-pub mod va_drm;
 #[cfg(feature = "x11")]
 pub mod va_display_x11;
 #[cfg(feature = "wayland")]

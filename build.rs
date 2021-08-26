@@ -29,11 +29,9 @@ fn main() {
     #[cfg(feature = "x11")]
     src.push("vendor/common/va_display_x11.c");
 
-    
     let mut builder = cc::Build::new();
     let build = builder.files(src.iter())
-        .include("vendor/libva-utils/common")
-        .include("/usr/include/libdrm");
+        .include("vendor/libva-utils/common");
 
     #[cfg(feature = "drm")]
     let build = build.define("HAVE_VA_DRM", None);
