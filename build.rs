@@ -1,4 +1,6 @@
 use cfg_if::cfg_if;
+use std::fs;
+use std::error::Error;
 
 cfg_if! {
     if #[cfg(feature = "x11")] {
@@ -10,7 +12,7 @@ cfg_if! {
     }
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     pkg_config::Config::new()
         .probe(LIB_NAME)
         .expect("Failed to find libva.");
@@ -21,14 +23,23 @@ fn main() {
     #[cfg(feature = "drm")]
     pkg_config::probe_library("libdrm").expect("Failed to find libdrm.");
 
-    let mut src = vec!["vendor/libva-utils/common/va_display.c"];
+    let mut src = vec!["vendor/libva-utils/common/va_display.c".to_string()];
 
     #[cfg(feature = "drm")]
     cfg_if! {
         if #[cfg(feature = "drm")] {
-            src.push("vendor/libva-utils/common/va_display_drm.c");
-            src.push("vendor/libva/va/drm/va_drm.c");
-            src.push("vendor/libva/va/drm/va_drm_utils.c");
+            src.push("vendor/libva-utils/common/va_display_drm.c".into());
+            src.push("vendor/libva/va/drm/va_drm.c".into());
+            src.push("vendor/libva/va/drm/va_drm_utils.c".into());
+
+            for entry in fs::read_dir("vendor/libva/va/drm")? {
+                if let Ok(entry) =  entry {
+                    if entry.path().extension() == Some("c".as_ref()) {
+                        let path = entry.path().to_string_lossy().to_string();
+                        src.push(path);
+                    }
+                }
+            }
         }
     }
 
@@ -44,7 +55,8 @@ fn main() {
         .include("vendor/libva-utils/common")
         .include("vendor/libva/va")
         .include("vendor/libva/va/drm")
-        .include("/usr/include/libdrm");
+        .include("/usr/include/libdrm")
+        .define("LIBVA_MAJOR_VERSION", "1.0");
 
     #[cfg(feature = "drm")]
     let build = build.define("HAVE_VA_DRM", None);
@@ -56,4 +68,6 @@ fn main() {
     let build = build.define("HAVE_VA_WAYLAND", None);
 
     build.compile(LIB_NAME);
+
+    Ok(())
 }
