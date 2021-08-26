@@ -28,6 +28,7 @@ fn main() {
         if #[cfg(feature = "drm")] {
             src.push("vendor/libva-utils/common/va_display_drm.c");
             src.push("vendor/libva/va/drm/va_drm.c");
+            src.push("vendor/libva/va/drm/va_drm_utils.c");
         }
     }
 
