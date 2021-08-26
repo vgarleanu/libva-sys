@@ -1,0 +1,7 @@
+
+[submodule "vendor/libva"]
+	path = vendor/libva
+	url = https://github.com/intel/libva
+[submodule "vendor/libva-utils"]
+	path = vendor/libva-utils
+	url = https://github.com/intel/libva-utils

@@ -18,13 +18,13 @@ fn main() {
     #[cfg(feature = "x11")]
     pkg_config::probe_library("x11").expect("Failed to find lx11.");
 
-    let mut src = vec!["vendor/common/va_display.c"];
+    let mut src = vec!["vendor/libva-utils/common/va_display.c"];
 
     #[cfg(feature = "drm")]
-    src.push("vendor/common/va_display_drm.c");
+    src.push("vendor/libva-utils/common/va_display_drm.c");
 
     #[cfg(feature = "wayland")]
-    src.push("vendor/common/va_display_wayland.c");
+    src.push("vendor/libva-utils/common/va_display_wayland.c");
 
     #[cfg(feature = "x11")]
     src.push("vendor/common/va_display_x11.c");
