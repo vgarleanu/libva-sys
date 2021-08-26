@@ -42,6 +42,7 @@ fn main() {
     let build = builder.files(src.iter())
         .include("vendor/libva-utils/common")
         .include("vendor/libva/va")
+        .include("vendor/libva/va/drm")
         .include("/usr/include/libdrm");
 
     #[cfg(feature = "drm")]
