@@ -18,10 +18,18 @@ fn main() {
     #[cfg(feature = "x11")]
     pkg_config::probe_library("x11").expect("Failed to find lx11.");
 
+    #[cfg(feature = "drm")]
+    pkg_config::probe_library("libdrm").expect("Failed to find libdrm.");
+
     let mut src = vec!["vendor/libva-utils/common/va_display.c"];
 
     #[cfg(feature = "drm")]
-    src.push("vendor/libva-utils/common/va_display_drm.c");
+    cfg_if! {
+        if #[cfg(feature = "drm")] {
+            src.push("vendor/libva-utils/common/va_display_drm.c");
+            src.push("vendor/libva/va/drm/va_drm.c");
+        }
+    }
 
     #[cfg(feature = "wayland")]
     src.push("vendor/libva-utils/common/va_display_wayland.c");
@@ -32,7 +40,9 @@ fn main() {
     
     let mut builder = cc::Build::new();
     let build = builder.files(src.iter())
-        .include("vendor/common");
+        .include("vendor/libva-utils/common")
+        .include("vendor/libva/va")
+        .include("/usr/include/libdrm");
 
     #[cfg(feature = "drm")]
     let build = build.define("HAVE_VA_DRM", None);
