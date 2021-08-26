@@ -13,8 +13,12 @@ cfg_if! {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    pkg_config::Config::new()
+    let libva_drm = pkg_config::Config::new()
         .probe(LIB_NAME)
+        .expect("Failed to find libva-drm.");
+
+    let libva = pkg_config::Config::new()
+        .probe("libva")
         .expect("Failed to find libva.");
 
     #[cfg(feature = "x11")]
@@ -68,6 +72,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let build = build.define("HAVE_VA_WAYLAND", None);
 
     build.compile(LIB_NAME);
+
+    println!("cargo:rustc-link-lib=libva");
+    println!("cargo:rustc-link-lib=libva-drm");
 
     Ok(())
 }
