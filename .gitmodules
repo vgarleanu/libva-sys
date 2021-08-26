@@ -2,3 +2,6 @@
 [submodule "vendor/libva-utils"]
 	path = vendor/libva-utils
 	url = https://github.com/intel/libva-utils
+[submodule "libva"]
+	path = vendor/libva
+	url = https://github.com/vgarleanu/libva
