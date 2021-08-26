@@ -1,6 +1,4 @@
 use cfg_if::cfg_if;
-use std::fs;
-use std::error::Error;
 
 cfg_if! {
     if #[cfg(feature = "x11")] {
@@ -12,40 +10,18 @@ cfg_if! {
     }
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let libva_drm = pkg_config::Config::new()
+fn main() {
+    pkg_config::Config::new()
         .probe(LIB_NAME)
-        .expect("Failed to find libva-drm.");
-
-    let libva = pkg_config::Config::new()
-        .probe("libva")
         .expect("Failed to find libva.");
 
     #[cfg(feature = "x11")]
     pkg_config::probe_library("x11").expect("Failed to find lx11.");
 
-    #[cfg(feature = "drm")]
-    pkg_config::probe_library("libdrm").expect("Failed to find libdrm.");
-
-    let mut src = vec!["vendor/libva-utils/common/va_display.c".to_string()];
+    let mut src = vec!["vendor/libva-utils/common/va_display.c"];
 
     #[cfg(feature = "drm")]
-    cfg_if! {
-        if #[cfg(feature = "drm")] {
-            src.push("vendor/libva-utils/common/va_display_drm.c".into());
-            src.push("vendor/libva/va/drm/va_drm.c".into());
-            src.push("vendor/libva/va/drm/va_drm_utils.c".into());
-
-            for entry in fs::read_dir("vendor/libva/va/drm")? {
-                if let Ok(entry) =  entry {
-                    if entry.path().extension() == Some("c".as_ref()) {
-                        let path = entry.path().to_string_lossy().to_string();
-                        src.push(path);
-                    }
-                }
-            }
-        }
-    }
+    src.push("vendor/libva-utils/common/va_display_drm.c");
 
     #[cfg(feature = "wayland")]
     src.push("vendor/libva-utils/common/va_display_wayland.c");
@@ -57,10 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut builder = cc::Build::new();
     let build = builder.files(src.iter())
         .include("vendor/libva-utils/common")
-        .include("vendor/libva/va")
-        .include("vendor/libva/va/drm")
-        .include("/usr/include/libdrm")
-        .define("LIBVA_MAJOR_VERSION", "1.0");
+        .include("/usr/include/libdrm");
 
     #[cfg(feature = "drm")]
     let build = build.define("HAVE_VA_DRM", None);
@@ -72,9 +45,4 @@ fn main() -> Result<(), Box<dyn Error>> {
     let build = build.define("HAVE_VA_WAYLAND", None);
 
     build.compile(LIB_NAME);
-
-    println!("cargo:rustc-link-lib=libva");
-    println!("cargo:rustc-link-lib=libva-drm");
-
-    Ok(())
 }
